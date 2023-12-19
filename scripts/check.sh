@@ -7,7 +7,7 @@ ERROR=$(tput setaf 1; echo -n "  [!]"; tput sgr0)
 GOODTOGO=$(tput setaf 2; echo -n "  [✓]"; tput sgr0)
 INFO=$(tput setaf 3; echo -n "  [-]"; tput sgr0)
 
-PROVIDERS="virtualbox vmware azure proxmox"
+PROVIDERS="virtualbox vmware azure proxmox gcp"
 ANSIBLE_HOSTS="docker local"
 print_usage() {
   echo "Usage: ./check.sh <provider> <ansible_host>"
@@ -117,6 +117,17 @@ check_azure_installed() {
     (echo >&2 "${GOODTOGO} azure is installed")
   fi
 }
+
+check_gcp_installed() {
+  if ! which gcloud >/dev/null; then
+    (echo >&2 "${ERROR} gcloud was not found in your PATH.")
+    (echo >&2 "${ERROR} Please correct this before continuing. Exiting.")
+    (echo >&2 "${ERROR} Correct this by installing gcloud (https://cloud.google.com/sdk/docs/install-sdk)")
+    exit 1
+  else
+    (echo >&2 "${GOODTOGO} gcloud is installed")
+  fi
+ }
 
 check_rsync_path() {
   if ! which rsync >/dev/null; then
@@ -383,6 +394,23 @@ main() {
   VAGRANT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
   case $PROVIDER in
+    "gcp")
+      (echo >&2 "[+] Enumerating vmware")
+      check_gcp_installed
+      check_vagrant_path
+      check_vagrant_reload_plugin
+      check_vmware_desktop_vagrant_plugin_installed
+      case $ANSIBLE_HOST in
+        "docker")
+          check_docker_installed
+          ;;
+        "local")
+          check_python_env
+          ;;
+        *)
+          ;;
+      esac
+      ;;
     "virtualbox")
       (echo >&2 "[+] Enumerating virtulabox")
       check_virtualbox_installed

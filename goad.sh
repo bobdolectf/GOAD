@@ -9,7 +9,7 @@ LAB=
 PROVIDER=
 METHOD=
 JOB=
-PROVIDERS="virtualbox vmware azure proxmox"
+PROVIDERS="virtualbox vmware azure proxmox gcp"
 LABS=$(ls -A ad/ |grep -v 'TEMPLATE')
 TASKS="check install start stop status restart destroy disablevagrant enablevagrant"
 METHODS="local docker"
@@ -97,6 +97,22 @@ else
 fi
 
 
+print_gcp_info() {
+    echo -e "\n\n"
+    echo "Ubuntu jumpbox IP: $public_ip"
+
+    echo "You can now connect to the jumpbox using the following command:"
+    echo "ssh -i ad/$lab/providers/$provider/ssh_keys/ubuntu-jumpbox.pem goad@$public_ip"
+    echo -e "\n\n"
+
+    echo "${OK} ssh/config :"
+    echo "Host goad_gcp, happy hunting"
+    echo "    Hostname $public_ip"
+    echo "    User goad"
+    echo "    Port 22"
+    echo "    IdentityFile $CURRENT_DIR/ad/$lab/providers/$provider/ssh_keys/ubuntu-jumpbox.pem"
+}
+
 print_azure_info() {
     echo -e "\n\n"
     echo "Ubuntu jumpbox IP: $public_ip"
@@ -118,6 +134,44 @@ install_providing(){
   provider=$2
 
   case $provider in
+    "gcp")
+      if [ -d "ad/$lab/providers/$provider/terraform" ]; then
+          cd "ad/$lab/providers/$provider/terraform"
+          echo "${OK} Initializing Terraform..."
+          terraform init
+
+          result=$?
+          if [ ! $result -eq 0 ]; then
+            echo "${ERROR} terraform init finish with error abort"
+            exit 1
+          fi
+
+          echo "${OK} Apply Terraform..."
+          terraform apply
+          result=$?
+          if [ ! $result -eq 0 ]; then
+            echo "${ERROR} terraform apply finish with error abort"
+            exit 1
+          fi
+
+          # Get the public IP address of the VM
+          echo "${OK} Getting jumpbox IP address..."
+          public_ip=$(terraform output -raw ubuntu-jumpbox-ip)
+          print_gcp_info
+          cd -
+
+          echo "${OK} Rsync goad to jumpbox"
+          rsync -a --exclude-from='.gitignore' -e "ssh -o 'StrictHostKeyChecking no' -i $CURRENT_DIR/ad/$lab/providers/$provider/ssh_keys/ubuntu-jumpbox.pem" "$CURRENT_DIR/" goad@$public_ip:~/GOAD/
+
+          echo "${OK} Running setup script on jumpbox..."
+          ssh -o "StrictHostKeyChecking no" -i "ad/$lab/providers/$provider/ssh_keys/ubuntu-jumpbox.pem" goad@$public_ip 'bash -s' <scripts/setup_gcp.sh
+
+          echo "${OK} Ready to launch provisioning"
+      else
+        echo "${ERROR} folder ad/$lab/providers/$provider/terraform not found"
+        exit 1
+      fi
+      ;;
     "virtualbox"|"vmware")
         cd "ad/$lab/providers/$provider"
         echo "${OK} launch vagrant"
