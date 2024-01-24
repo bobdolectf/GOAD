@@ -63,18 +63,14 @@ variable "vm_config" {
 
 resource "google_compute_network_interface" "goad-vm-nic" {
   for_each = var.vm_config
-
-  name                = "goad-vm-${each.value.name}-nic"
-  location            = google_resource_group.resource_group.location
-  resource_group_name = google_resource_group.resource_group.name
-
-  ip_configuration {
-    name                          = "goad-vm-${each.value.name}-nic-ipconfig"
-    subnet_id                     = google_subnet.subnet.id
-    private_ip_address_allocation = "Static"
-    private_ip_address            = each.value.private_ip_address
-  }
+  name = "goad-vm-${each.value.name}-nic"
+  network = google_compute_network.network.self_link  // Reference the GCP network
+  subnetwork = google_compute_subnetwork.subnet.self_link  // Reference the GCP subnetwork
+  address = each.value.private_ip_address  // Assign static IP addresses
+ }
 }
+
+
 
 resource "google_windows_virtual_machine" "goad-vm" {
   for_each = var.vm_config
