@@ -79,7 +79,7 @@ resource "google_compute_instance" "goad-vm" {
   }
   network_interface {
     network = google_compute_network.vpc.name
-    subnetwork = google_compute_subnetwork.goad_subnet.name
+    subnetwork = google_compute_subnetwork.goad-subnet.name
     access_config {}
   }
 }
