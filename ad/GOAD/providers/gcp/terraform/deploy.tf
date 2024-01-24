@@ -78,9 +78,8 @@ resource "google_compute_instance" "goad-vm" {
     }
   }
   network_interface {
-    network = "goad-virtual-network"
-       access_config {
-      nat_ip = each.value.private_ip_address
-    }
+    network = google_compute_network.vpc.name
+    google_compute_subnetwork.network_subnet.name
+    access_config {}
   }
 }
