@@ -81,12 +81,7 @@ resource "google_compute_instance" "goad-vm" {
   }
 }
 
-  network_interface {
-    network = google_compute_network.vpc_network.self_link
-    subnetwork = google_compute_subnetwork.subnet.self_link
-  }
-
-
+  
 resource "google_compute_instance_metadata" "goad-vm-metadata" {
   for_each = var.vm_config
   instance = google_compute_instance.goad-vm[each.key].self_link
