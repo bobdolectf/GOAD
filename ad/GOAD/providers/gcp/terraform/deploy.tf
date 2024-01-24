@@ -61,17 +61,6 @@ variable "vm_config" {
   }
 }
 
-resource "google_compute_network" "vpc_network" {
-  name    = "goad-vpc-network"  # Replace with your preferred network name
-  auto_create_subnetworks = false
-}
-
-resource "google_compute_subnetwork" "subnet" {
-  name          = "goad-subnet"  # Replace with your preferred subnet name
-  ip_cidr_range = "10.10.0.0/16"  # Replace with your desired IP range
-  region        = "us-central1"
-  network       = google_compute_network.vpc_network.self_link
-}
 
 resource "google_compute_network_interface" "goad-vm-nic" {
   for_each = var.vm_config
