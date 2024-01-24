@@ -16,7 +16,7 @@ resource "google_compute_network" "vpc" {
   mtu                     = 1460
 }
 
-resource "google_compute_subnetwork" "goad-subnet" {
+resource "google_compute_subnetwork" "goad_subnet" {
   name          = "goad-vm-subnet"
   ip_cidr_range = "192.168.56.0/24"
   region        = var.location  // Set region directly in the subnetwork
