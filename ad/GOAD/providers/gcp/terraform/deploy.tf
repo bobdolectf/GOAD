@@ -88,12 +88,9 @@ resource "google_compute_instance" "goad-vm" {
   }
 
   metadata = {
-  "windows-startup-script-ps1" = <<-EOF  // Enhanced startup script
-    # Set admin password
+  "windows-startup-script-ps1" = <<-EOF
     net user ${var.username} ${each.value.password} /add /expires:never /y
     net localgroup administrators ${var.username} /add
-
-    # Download and execute Ansible prep script
     $url = "https://raw.githubusercontent.com/ansible/ansible/38e50c9f819a045ea4d40068f83e78adbfaf2e68/examples/scripts/ConfigureRemotingForAnsible.ps1"
     $file = "$env:TEMP\ConfigureRemotingForAnsible.ps1"
     Invoke-WebRequest -Uri $url -OutFile $file
