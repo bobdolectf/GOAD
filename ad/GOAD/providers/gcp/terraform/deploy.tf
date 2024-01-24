@@ -72,7 +72,11 @@ resource "google_compute_instance" "goad-vm" {
   name         = "goad-vm-${each.value.name}"
   machine_type = var.size
   zone         = "us-central1-a"  # Replace with your preferred zone
-  boot_disk    = each.value.disk
+  boot_disk {
+    initialize_params {
+      image = each.value.disk
+    }
+  }
   network_interface {
     network = "goad-virtual-network"
        access_config {
