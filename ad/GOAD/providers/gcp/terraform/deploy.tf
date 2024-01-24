@@ -20,6 +20,7 @@ variable "vm_config" {
     windows_version    = string
     private_ip_address = string
     password           = string
+    disk               = string
   }))
 
   default = {
@@ -29,6 +30,7 @@ variable "vm_config" {
       windows_version    = "2019.0.20181122"
       private_ip_address = "192.168.56.10"
       password           = "8dCT-DJjgScp"
+      disk               = "windows-cloud/windows-2019-core"
     }
     "dc02" = {
       name               = "dc02"
@@ -36,6 +38,7 @@ variable "vm_config" {
       windows_version    = "2019.0.20181122"
       private_ip_address = "192.168.56.11"
       password           = "NgtI75cKV+Pu"
+      disk               = "windows-cloud/windows-2019-core"
     }
     "dc03" = {
       name               = "dc03"
@@ -43,6 +46,7 @@ variable "vm_config" {
       windows_version    = "2016.127.20181122"
       private_ip_address = "192.168.56.12"
       password           = "Ufe-bVXSx9rk"
+      disk               = "windows-cloud/windows-2016-core"
     }
     "srv02" = {
       name               = "srv02"
@@ -50,6 +54,7 @@ variable "vm_config" {
       windows_version    = "2019.0.20181122"
       private_ip_address = "192.168.56.22"
       password           = "NgtI75cKV+Pu"
+      disk               = "windows-cloud/windows-2019-core"
     }
     "srv03" = {
       name               = "srv03"
@@ -57,6 +62,7 @@ variable "vm_config" {
       windows_version    = "2016.127.20181122"
       private_ip_address = "192.168.56.23"
       password           = "978i2pF43UJ-"
+      disk               = "windows-cloud/windows-2019-core"
     }
   }
 }
@@ -66,11 +72,7 @@ resource "google_compute_instance" "goad-vm" {
   name         = "goad-vm-${each.value.name}"
   machine_type = var.size
   zone         = "us-central1-a"  # Replace with your preferred zone
-  boot_disk {
-    initialize_params {
-      image = "windows-cloud/windows-server-2022-dc-core"  # Adjust image reference if needed
-    }
-  }
+  boot_disk    = each.value.disk
   network_interface {
     network = "goad-virtual-network"
        access_config {
