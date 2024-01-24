@@ -80,13 +80,3 @@ resource "google_compute_instance" "goad-vm" {
     }
   }
 }
-
-  
-resource "google_compute_instance_metadata" "goad-vm-metadata" {
-  for_each = var.vm_config
-  instance = google_compute_instance.goad-vm[each.key].self_link
-  metadata = {
-    "ansible-user" = "ansible"  // Set Ansible user
-    "ansible-password" = each.value.password  // Set Ansible password
-  }
-}
