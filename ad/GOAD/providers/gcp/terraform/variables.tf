@@ -17,6 +17,7 @@ resource "google_compute_network" "virtual_network" {
   name                    = "goad-virtual-network"
   auto_create_subnetworks = false  // Disable automatic subnetwork creation
   routing_mode            = "REGIONAL"  // Set routing mode to REGIONAL
+  mtu                     = 1460
 }
 
 resource "google_compute_subnetwork" "subnet" {
