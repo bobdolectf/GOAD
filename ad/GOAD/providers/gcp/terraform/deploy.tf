@@ -68,7 +68,6 @@ resource "google_compute_network_interface" "goad-vm-nic" {
   subnetwork = google_compute_subnetwork.subnet.self_link  // Reference the GCP subnetwork
   address = each.value.private_ip_address  // Assign static IP addresses
  }
-}
 
 
 
