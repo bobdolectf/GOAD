@@ -1,44 +1,28 @@
 variable "location" {
   type    = string
-  default = "westeurope"
-}
-
-resource "google_resource_group" "resource_group" {
-  name     = "GOAD"
-  location = var.location
-}
-
-resource "google_virtual_network" "virtual_network" {
-  name                = "goad-virtual-network"
-  address_space       = ["192.168.0.0/16"]
-  location            = google_resource_group.resource_group.location
-  resource_group_name = google_resource_group.resource_group.name
-}
-
-resource "google_subnet" "subnet" {
-  name                 = "goat-vm-subnet"
-  resource_group_name  = google_resource_group.resource_group.name
-  virtual_network_name = google_virtual_network.virtual_network.name
-  address_prefixes     = ["192.168.56.0/24"]
+  default = "us-central1"  // Using a GCP region code
 }
 
 variable "size" {
   type    = string
-  default = "Standard_B2s"
+  default = "e2-standard-2"  // Using a GCP machine type
 }
 
-variable "username" {
-  type    = string
-  default = "goadmin"
+resource "google_folder" "resource_group" {
+  display_name = "GOAD"
+  parent       = "organizations/366616858145"  // Replace with your organization ID
 }
 
-variable "password" {
-  description = "Password of the windows virtual machine admin user"
-  type    = string
-  default = "goadmin"
+resource "google_compute_network" "virtual_network" {
+  name                    = "goad-virtual-network"
+  auto_create_subnetworks = false  // Disable automatic subnetwork creation
+  routing_mode            = "REGIONAL"  // Set routing mode to REGIONAL
 }
 
-variable "jumpbox_username" {
-  type    = string
-  default = "goad"
+resource "google_compute_subnetwork" "subnet" {
+  name          = "goat-vm-subnet"
+  ip_cidr_range = "192.168.56.0/24"
+  region        = var.location  // Set region directly in the subnetwork
+  network       = google_compute_network.virtual_network.self_link
 }
+
