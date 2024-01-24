@@ -86,22 +86,10 @@ resource "google_compute_instance" "goad-vm" {
     subnetwork = google_compute_subnetwork.subnet.self_link
   }
 
-  metadata = {
-  "windows-startup-script-ps1" = <<-EOF
-    net user ${var.username} ${each.value.password} /add /expires:never /y
-    net localgroup administrators ${var.username} /add
-    $url = "https://raw.githubusercontent.com/ansible/ansible/38e50c9f819a045ea4d40068f83e78adbfaf2e68/examples/scripts/ConfigureRemotingForAnsible.ps1"
-    $file = "$env:TEMP\ConfigureRemotingForAnsible.ps1"
-    Invoke-WebRequest -Uri $url -OutFile $file
-    powershell -ExecutionPolicy Unrestricted -File $file
-  EOF
-}
 
 resource "google_compute_instance_metadata" "goad-vm-metadata" {
   for_each = var.vm_config
-
   instance = google_compute_instance.goad-vm[each.key].self_link
-
   metadata = {
     "ansible-user" = "ansible"  // Set Ansible user
     "ansible-password" = each.value.password  // Set Ansible password
