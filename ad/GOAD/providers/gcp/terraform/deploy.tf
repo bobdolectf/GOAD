@@ -61,8 +61,6 @@ variable "vm_config" {
   }
 }
 
-
-
 resource "google_compute_instance" "goad-vm" {
   for_each = var.vm_config
   name         = "goad-vm-${each.value.name}"
@@ -74,7 +72,7 @@ resource "google_compute_instance" "goad-vm" {
     }
   }
   network_interface {
-    network = "GOAD"
+    network = "goad-virtual-network"
        access_config {
       nat_ip = each.value.private_ip_address
     }
