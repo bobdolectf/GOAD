@@ -71,16 +71,15 @@ resource "google_compute_network_interface" "goad-vm-nic" {
 
 resource "google_compute_instance" "goad-vm" {
   for_each = var.vm_config
-
   name         = "goad-vm-${each.value.name}"
   machine_type = var.size
   zone         = "us-central1-a"  # Replace with your preferred zone
-
   boot_disk {
     initialize_params {
       image = "windows-cloud/windows-server-2022-dc-core"  # Adjust image reference if needed
     }
   }
+}
 
   network_interface {
     network = google_compute_network.vpc_network.self_link
