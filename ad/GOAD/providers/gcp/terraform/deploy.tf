@@ -62,12 +62,6 @@ variable "vm_config" {
 }
 
 
-resource "google_compute_network_interface" "goad-vm-nic" {
-  for_each = var.vm_config
-
-  name          = "goad-vm-${each.value.name}-nic"
-  subnetwork    = google_compute_subnetwork.subnet.self_link
-}
 
 resource "google_compute_instance" "goad-vm" {
   for_each = var.vm_config
