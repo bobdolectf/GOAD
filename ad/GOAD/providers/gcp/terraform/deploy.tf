@@ -79,4 +79,10 @@ resource "google_compute_instance" "goad-vm" {
       image = "windows-cloud/windows-server-2022-dc-core"  # Adjust image reference if needed
     }
   }
+  network_interface {
+    network = "GOAD"
+       access_config {
+      nat_ip = each.value.private_ip_address
+    }
+  }
 }
