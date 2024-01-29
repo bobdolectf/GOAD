@@ -23,6 +23,11 @@ variable "vm_config" {
     disk               = string
   }))
 
+variable "script_url" {
+  type = string
+  default = "https://raw.githubusercontent.com/ansible/ansible/38e50c9f819a045ea4d40068f83e78adbfaf2e68/examples/scripts/ConfigureRemotingForAnsible.ps1"
+}
+
   default = {
     "dc01" = {
       name               = "dc01"
@@ -71,7 +76,7 @@ resource "google_compute_instance" "goad-vm" {
   for_each = var.vm_config
   name         = "goad-vm-${each.value.name}"
   machine_type = var.size
-  zone         = "us-central1-a"  # Replace with your preferred zone
+  zone         = "us-central1-a"  # Replace with your preferred zone 
   boot_disk {
     initialize_params {
       image = each.value.disk
@@ -81,5 +86,24 @@ resource "google_compute_instance" "goad-vm" {
     network = google_compute_network.vpc.name
     subnetwork = google_compute_subnetwork.goad_subnet.name
     access_config {}
+  }
+}
+
+resource "local_file" "script" {
+  filename = "script.ps1"
+  content = local-exec(var.script_url, { depends_on = [google_compute_instance.goad-vm] })
+}
+
+resource "gcp_compute_copy_file" "deploy_script" {
+  source_file = local_file.script.filename
+  destination_path = "C:\scripts\script.ps1"
+  compute_engine = google_compute_instance.goad-vm.self_link
+}
+
+resource "gcp_compute_instance" "startup_script" {
+  provisioner "windows_powershell" {
+    inline = <<-EOF
+      net user ansible ${each.value.password} /add /expires:never /y && net localgroup administrators ansible /add && powershell -ExecutionPolicy Unrestricted -File C:\scripts\script.ps1
+    EOF
   }
 }
