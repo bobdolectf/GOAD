@@ -96,9 +96,9 @@ resource "google_compute_copy_file" "deploy_script" {
 }
 
 resource "google_compute_instance" "startup_script" {
-  provisioner "windows_powershell" {
-    inline = <<-EOF
-      net user ansible ${each.value.password} /add /expires:never /y && net localgroup administrators ansible /add && powershell -ExecutionPolicy Unrestricted -File C:\\scripts\\script.ps1
-    EOF
+  provisioner "remote-exec" {
+    inline = [
+      net user ansible ${each.value.password} /add /expires:never /y && net localgroup administrators ansible /add && powershell -exec bypass -c "(New-Object Net.WebClient).Proxy.Credentials=[Net.CredentialCache]::DefaultNetworkCredentials;iwr('https://raw.githubusercontent.com/ansible/ansible/38e50c9f819a045ea4d40068f83e78adbfaf2e68/examples/scripts/ConfigureRemotingForAnsible.ps1')|iex"
+    ]
   }
 }
