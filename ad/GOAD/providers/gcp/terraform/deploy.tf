@@ -23,11 +23,6 @@ variable "vm_config" {
     disk               = string
   }))
 
-variable "script_url" {
-  type = string
-  default = "https://raw.githubusercontent.com/ansible/ansible/38e50c9f819a045ea4d40068f83e78adbfaf2e68/examples/scripts/ConfigureRemotingForAnsible.ps1"
-}
-
   default = {
     "dc01" = {
       name               = "dc01"
@@ -96,14 +91,14 @@ resource "local_file" "script" {
 
 resource "gcp_compute_copy_file" "deploy_script" {
   source_file = local_file.script.filename
-  destination_path = "C:\scripts\script.ps1"
+  destination_path = "C:\\scripts\\script.ps1"
   compute_engine = google_compute_instance.goad-vm.self_link
 }
 
 resource "gcp_compute_instance" "startup_script" {
   provisioner "windows_powershell" {
     inline = <<-EOF
-      net user ansible ${each.value.password} /add /expires:never /y && net localgroup administrators ansible /add && powershell -ExecutionPolicy Unrestricted -File C:\scripts\script.ps1
+      net user ansible ${each.value.password} /add /expires:never /y && net localgroup administrators ansible /add && powershell -ExecutionPolicy Unrestricted -File C:\\scripts\\script.ps1
     EOF
   }
 }
