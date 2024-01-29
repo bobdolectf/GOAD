@@ -89,13 +89,13 @@ resource "local_file" "script" {
   content = local-exec(var.script_url, { depends_on = [google_compute_instance.goad-vm] })
 }
 
-resource "gcp_compute_copy_file" "deploy_script" {
+resource "google_compute_copy_file" "deploy_script" {
   source_file = local_file.script.filename
   destination_path = "C:\\scripts\\script.ps1"
   compute_engine = google_compute_instance.goad-vm.self_link
 }
 
-resource "gcp_compute_instance" "startup_script" {
+resource "google_compute_instance" "startup_script" {
   provisioner "windows_powershell" {
     inline = <<-EOF
       net user ansible ${each.value.password} /add /expires:never /y && net localgroup administrators ansible /add && powershell -ExecutionPolicy Unrestricted -File C:\\scripts\\script.ps1
