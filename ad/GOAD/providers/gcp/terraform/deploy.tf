@@ -83,22 +83,3 @@ resource "google_compute_instance" "goad-vm" {
     access_config {}
   }
 }
-
-resource "local_file" "script" {
-  filename = "script.ps1"
-  content = local-exec(var.script_url, { depends_on = [google_compute_instance.goad-vm] })
-}
-
-resource "google_compute_copy_file" "deploy_script" {
-  source_file = local_file.script.filename
-  destination_path = "C:\\scripts\\script.ps1"
-  compute_engine = google_compute_instance.goad-vm.self_link
-}
-
-resource "google_compute_instance" "startup_script" {
-  provisioner "remote-exec" {
-    inline = [
-      "net user ansible each.value.password /add /expires:never /y && net localgroup administrators ansible /add && powershell Invoke-WebRequest "https://raw.githubusercontent.com/ansible/ansible/38e50c9f819a045ea4d40068f83e78adbfaf2e68/examples/scripts/ConfigureRemotingForAnsible.ps1" -OutFile "C:\\Windows\\Temp\\ConfigureRemotingForAnsible.ps1" && powershell -ExecutionPolicy Unrestricted -File C:\\Windows\Temp\\ConfigureRemotingForAnsible.ps1"
-    ]
-  }
-}
