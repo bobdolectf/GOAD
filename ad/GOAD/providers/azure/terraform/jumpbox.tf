@@ -30,7 +30,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
   location            = azurerm_resource_group.resource_group.location
   size                = var.size
   admin_username      = var.jumpbox_username
-  admin_password      = var.password
+  admin_password      = "goadpassword123!!!"
   network_interface_ids = [
     azurerm_network_interface.ubuntu_jumbox_nic.id,
   ]
