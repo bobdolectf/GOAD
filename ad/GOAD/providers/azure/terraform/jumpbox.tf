@@ -34,7 +34,7 @@ resource "azurerm_linux_virtual_machine" "jumpbox" {
     azurerm_network_interface.ubuntu_jumbox_nic.id,
   ]
 
-  disable_password_authentication = true
+  disable_password_authentication = false
 
   admin_ssh_key {
     username   = var.jumpbox_username
