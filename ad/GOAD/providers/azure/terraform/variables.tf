@@ -1,6 +1,6 @@
 variable "location" {
   type    = string
-  default = "westeurope"
+  default = "eastus"
 }
 
 resource "azurerm_resource_group" "resource_group" {
